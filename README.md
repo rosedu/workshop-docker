@@ -445,6 +445,7 @@ We recommend that you install Docker inside of a Linux Virtual Machine if you're
 Use either [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) or the Intro to Operating Systems [Virtual Machine](https://repository.grid.pub.ro/cs/uso/USO.ova) if you you with to run in a Linux VM.
 
 Make sure to add your user to the `docker` group so you can run the docker commands without `sudo`.
+See the [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
 
 As a quick way to install Docker for Debian-based systems, follow the instructions below, also listed in the `install-nginx.sh` script:
 
@@ -465,27 +466,33 @@ sudo apt-get -yqq update
 
 sudo apt-get -yqq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo adduser $USER docker
-student@cdl-docker:~/work
 ```
 
 ## Dockerfile
 
-Dockerfiles provide recipes for creating a container by writing a script which sets up the container environment.
+Dockerfiles provide recipes for creating images.
+The images can then be instantiated into containers.
 
-[The following file](https://github.com/linux-kernel-labs/linux/blob/master/tools/labs/docker/kernel/Dockerfile) defines a Docker container.
-Read the file and follow the rules which are defined in it.
-We notice the following keywords:
+### Check Dockerfiles
 
-* `FROM` - the base container on top of which the setup will be done;
-* `RUN` - runs a setup command;
-* `WORKDIR` - sets the container work directory to the specific path;
-* `USER` - sets the running user to the specific username;
-* `ARG` - defines an argument at build time;
-* `COPY` - copies a file from the build directory to the container.
+Check the [`Dockerfile` used by the `ctf-piece-of-pie` container](ctf-piece_of_pie/deploy/Dockerfile).
 
-Inspect the following Dockerfiles and try to follow the commands being run and the keywords used:
-* [uso-labs](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/Dockerfile)
-* [docker-setup](https://github.com/Sergiu121/uso-lab/blob/master/labs/09-task-admin/lab-container/dropbox/Dockerfile)
+Also check the following Dockerfiles:
+
+- [linux-kernel-labs](https://github.com/linux-kernel-labs/linux/blob/master/tools/labs/docker/kernel/Dockerfile) defines a Docker container.
+- [uso-labs](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/Dockerfile)
+- [docker-setup](https://github.com/Sergiu121/uso-lab/blob/master/labs/09-task-admin/lab-container/dropbox/Dockerfile)
+
+This is a brief overview of the main keywords in a `Dockerfile`:
+
+- `FROM` - the base container on top of which the setup will be done;
+- `RUN` - runs a setup command;
+- `WORKDIR` - sets the container work directory to the specific path;
+- `USER` - sets the running user to the specific username;
+- `ARG` - defines an argument at build time;
+- `COPY` - copies a file from the build directory to the container.
+
+[The Dockerfile reference](https://docs.docker.com/reference/dockerfile/) presents an extensive presentation of keywords in a `Dockerfile`.
 
 ### Python Server
 
@@ -495,9 +502,8 @@ Go to the `python-server` directory and build the container using the following 
 docker build -t python-server:1.0 .
 ```
 
-The command builds the container with the specification from the Dockerfile.
-Add another line which installs the curl package.
-Test the container functionality by connecting to it and running the command:
+The command builds the container with the specification from the `Dockerfile`.
+Test the container functionality by running:
 
 ```console
 curl localhost:8080
@@ -505,7 +511,7 @@ curl localhost:8080
 
 Change the base image to Debian and rebuild the container tagged with the `python-server-debian:1.0` tag.
 
-Create a Makefiles which has the following rules:
+Create a `Makefile` with has the following rules:
 
 - `build`: creates a new image using the `Dockerfile`;
 - `start`: starts a container based on the `python-server` image named `python-workspace` in the background;
@@ -514,7 +520,8 @@ Create a Makefiles which has the following rules:
 
 ### Assignment Checker
 
-A common use case for using containers is platform-agnostic testing. The `assignment-checker` directory contains a bash scripts which runs tests on an application by running it and comparing its output with a reference.
+A common use case for using containers is platform-agnostic testing.
+The `assignment-checker` directory contains a bash scripts which runs tests on an application by running it and comparing its output with a reference.
 
 Create a Docker image which is able to run this script, compile de application and run the tests.
 
@@ -562,12 +569,12 @@ Add an additional mount point to the above command to mount the `nginx-confs/ngi
 #### Build Program With GCC13
 
 An advantage of using containers is the fact that they offer a flexible environment for testing and building applications.
-Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based based on a Makefile located in the `/workdir` path.
+Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based based on a `Makefile` located in the `/workdir` path.
 
 The container must be able to compile applications using GCC13.
 
 The application to be compiled is located in `assignment-checker/src`.
-Use the included Makefile to compile it.
+Use the included `Makefile` to compile it.
 
 ## Container Registries
 
