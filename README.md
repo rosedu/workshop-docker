@@ -86,7 +86,7 @@ Follow the steps below:
 1. Find out port-related information to the containers:
 
    ```console
-   docker ports
+   docker port ctf-nginx
    ```
 
    You can see the port forwarding:
@@ -118,13 +118,15 @@ Follow the steps below:
    docker logs ctf-piece_of_pie
    ```
 
-1. Find out runtime statistics and resource consumption of the running Nginx containers:
+1. Find out runtime statistics and resource consumption of the running Nginx container:
 
    ```console
    docker stats cdl-nginx
    ```
 
-1. Find out the processes of a running Nginx container:
+   Close the screen by running `Ctrl+c` three times.
+
+1. Find out the processes of the running Nginx container:
 
    ```console
    docker top cdl-nginx
@@ -132,7 +134,7 @@ Follow the steps below:
 
 ### Do It Yourself
 
-
+Repeat the steps above, at least 2-3 times.
 
 ## Interact with Docker Instances
 
@@ -141,51 +143,211 @@ Such as starting and stopping containers, copying files to / from containers, ge
 
 Follow the steps below:
 
-   ```console
-   docker stop
-   ```
-   ```console
-   docker kill
-   ```
-   ```console
-   docker start
-   ```
-   ```console
-   docker exec
-   ```
-   ```console
-   docker cp
-   ```
+### Starting Instances
+
+Start the `ctf-piece_of_pie` instance:
+
+```console
+docker start ctf-piece_of_pie
+```
+
+Now check it is started:
+
+```console
+docker ps
+```
+
+You can see it appears as a started container.
+
+Check the ports and the processes:
+
+```console
+docker port ctf-piece_of_pie
+docker top ctf-piece_of_pie
+```
+
+Connect locally to test the service:
+
+```console
+nc localhost 31337
+```
+
+### Stopping Instances
+
+Stop the `cdl-nginx` instance:
+
+```console
+docker stop cdl-nginx
+```
+
+You can see it does not appear as a started container.
+
+Check to see the list of stopped containers:
+
+```console
+docker ps -a
+```
+
+### Removing Containers
+
+A stopped container can be removed.
+Once this is done, the container is gone forever.
+It will have to be re-instantiated if needed, as we'll see in section ["Images and Containers"](#images-and-containers).
+
+Remove the `cdl-nginx` container:
+
+```console
+docker rm cdl-nginx
+```
+
+The container is now gone.
+You can use different commands to see if is gone:
+
+```console
+docker ps -a
+docker inspect cdl-nginx
+docker stats cdl-nginx
+```
+
+### Connecting to a Container
+
+You can connect to a container by using `docker exec`.
+Typically, you want to start a shell.
+Start a shell on the `ctf-piece_of_pie` container by using
+
+```console
+docker exec -it ctf-piece_of_pie /bin/bash
+```
+
+More than that, you can run different commands inside the container:
+
+```console
+docker exec -it ctf-piece_of_pie ls
+docker exec -it ctf-piece_of_pie ls /proc
+docker exec -it ctf-piece_of_pie cat /etc/shadow
+docker exec -it ctf-piece_of_pie id
+```
+
+### Copying Files To / From a Container
+
+You can copy files or entire directories to or from a container.
+For example, to copy the `README.md` file to the `cdl-nginx` container in the `root` directory, use:
+
+```console
+docker cp README.md cdl-nginx:/root/
+```
+
+Likwise, if we wnat to copy the `index.html` file we use;
+
+```console
+docker cp cdl-nginx:/usr/share/nginx/html/index.html .
+```
+
+You can see that the container doesn't need to be running.
+
+### Do It Yourself
+
+1. Copiază fișiere  în / din containere.
+1. Oprește toate containere current.
 
 ## Docker Images
 
-   ```console
-   docker image ls
-   ```
-   ```console
-   docker image inspect
-   ```
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile](#dockerfile)).
+
+List the available Docker images by using:
+
+```console
+docker image ls
+```
+
+You will get an output such as:
+
+```text
+REPOSITORY         TAG        IMAGE ID       CREATED        SIZE
+ctf-piece_of_pie   latest     1f844c4f935b   9 hours ago    209MB
+<none>             <none>     99ba2c76892a   9 hours ago    216MB
+<none>             <none>     e81d4254c928   13 hours ago   209MB
+<none>             <none>     2d74afaf7b34   13 hours ago   209MB
+debian             bookworm   617f2e89852e   2 weeks ago    117MB
+nginx              latest     3b25b682ea82   4 weeks ago    192MB
+gcc                14.2       d0b5d902201b   3 months ago   1.42GB
+```
+
+The `<none>` entries store intermediary versions of an image file.
+
+You can also inspect an image, such as `debian:bookworm`.
+
+```console
+docker image inspect debian:bookworm
+```
 
 ## Images and Containers
 
-   ```console
-   docker create
-   ```
-   ```console
-   docker rm
-   ```
-   ```console
-   docker run
-   ```
+As stated above, container are created from images.
+Let's re-create the Nginx container, starting from the `nginx:latest` image:
+
+```console
+docker create --rm --name cdl-nginx nginx:latest
+```
+
+Check out it was created by running:
+
+```console
+docker ps -a
+```
+
+The container is currently stopped.
+In order to start the container, run:
+
+```console
+docker strt cdl-nginx
+```
+
+Check out it was started by running:
+
+```console
+docker ps
+docker logs cdl-nginx
+docker inspect cdl-nginx
+docker stats cdl-nginx
+```
+
+The create and start command can be combined in a single command, `docker run`.
+
+Create two more Ngin containers by uring `docker fun`.
+
+```console
+docker run --rm --name cdl2-nginx -p 8882:80 nginx:latest
+docker run --rm --name cdl3-nginx -p 8883:80 nginx:latest
+```
+
+### Do It Yourself
+
+Create încă 5 containere din imaginile existente.
 
 ## Getting Images
 
-   ```console
-   docker search
-   ```
-   ```console
-   docker pull
-   ```
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com/_/httpd) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile](#dockerfile)).
+
+To search for an image you like, use the commands below:
+
+```console
+docker search database
+```
+
+To pulll images localy, use:
+
+```console
+docker pull <path the containers>
+```
+
+### Do It Yourself
+
+Download the following images:
+
+* Dohttps://hub.docker.com/_/mariadbwnload locally for the applications: [MongoDB](https://hub.docker.com/_/mongo), [MariaDB](https://hub.docker.com/_/mariadb).
+* Create 20-30 instances.
+* Aftr a while, try to stop the newly instances.
 
 ## Installing Docker
 
@@ -196,6 +358,27 @@ Use either [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windo
 
 Make sure to add your user to the `docker` group so you can run the docker commands without `sudo`.
 
+As a summeryo install Docker, follow the instructions below, also listed in the `install-nginx.sh` script.
+
+```console
+# Add Docker's official GPG key:
+sudo apt-get -yqq update
+sudo apt-get -yqq install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get -yqq update
+
+sudo apt-get -yqq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo adduser $USER docker
+student@cdl-docker:~/work
+```
 ## Dockerfile
 
 Dockerfiles provide recipes for creating a container by writing a script which sets up the container environment.
