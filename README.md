@@ -536,18 +536,24 @@ We will be running the `nginx` container using content on our host system.
 The command to do this from the repository root is:
 
 ```console
-TODO
+docker run --name better-nginx -v $PWD/nginx-website:/usr/share/nginx/html:ro -d nginx
 ```
 
-The `TODO` directory is mounted to the `/var/www` directory. Change the above command to mount the `TODO` directory instead. See what has changed.
+The `nginx-website` directory is mounted to the `/usr/share/nginx/html` directory.
+Change the above command to mount the `better-website` directory instead.
+See what has changed.
 
-Add an additional mount point to the above command to mount the `TODO` file as the Nginx configuration file fount at `TODO`.
+Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the nginx configuration file fount at `/etc/nginx/nginx.conf`.
 
 #### Build Program With GCC13
 
-An advantage of using containers is the fact that they offer a flexible environment for testing and building applications. Based on [this]() Dockerfile, create a Docker image which compiles an application based based on a Makefile located in the `/workdir` path.
+An advantage of using containers is the fact that they offer a flexible environment for testing and building applications.
+Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based based on a Makefile located in the `/workdir` path.
 
 The container must be able to compile applications using GCC13.
+
+The application to be compiled is located in `assignment-checker/src`.
+Use the included Makefile to compile it.
 
 ## Container Registries
 
