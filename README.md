@@ -86,7 +86,7 @@ Follow the steps below:
 1. Find out port-related information to the containers:
 
    ```console
-   docker port ctf-nginx
+   docker port cdl-nginx
    ```
 
    You can see the port forwarding:
