@@ -23,6 +23,8 @@ container_stop_and_remove()
 
 container_stop_and_remove "cdl-nginx"
 container_stop_and_remove "ctf-piece_of_pie"
+container_stop_and_remove "cdl-caddy"
+container_stop_and_remove "cdl-debian-bash"
 
 # Start Nginx container
 ./vanilla-nginx/run-nginx-container.sh

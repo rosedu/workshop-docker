@@ -144,6 +144,16 @@ Follow the steps below:
 
 Repeat the steps above, at least 2-3 times.
 
+Now, let's use the steps above on different containers.
+Start two new containers named `cdl-caddy` and `cdl-debian-bash` by running the corresponding scripts:
+
+```console
+./vanilla-caddy/run-caddy-container.sh
+./debian-bash/run-debian-bash-container.sh
+```
+
+Inspect the two newly started containers using the commands above.
+
 ## Interact with Docker Instances
 
 Let's now do actual interaction with Docker container instances.
@@ -258,7 +268,10 @@ You can see that the container doesn't need to be running.
 
 ### Do It Yourself
 
-Now copy files to from containers.
+Make sure all four containers are started: `cdl-nginx`, `ctf-piece_of_pie`, `cdl-caddy`, `cdl-debian-bash`.
+Start them if they are not stared.
+
+Copy files to and from containers.
 
 1. Copy `README.md` and `install-docker.sh` files from the current directory in the `/usr/local/` directory in all containers available (via `docker ps -a`).
 
@@ -269,7 +282,8 @@ Now copy files to from containers.
    ```console
    mkdir container-cdl-nginx
    mkdir container-ctf-piece_of_pie
-   ...
+   mkdir container-cdl-caddy
+   mkdir container-cdl-debian-bash
    ```
 
    Copy the `/bin/bash` binary from each available container to their respective directory.
