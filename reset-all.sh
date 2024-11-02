@@ -9,7 +9,6 @@ container_stop_and_remove()
         # Stop container if it running.
         echo "Stopping container $name ... "
         docker stop "$name"
-        echo "DONE"
     fi
 
     # Check if container exists.

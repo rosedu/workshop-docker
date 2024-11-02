@@ -159,9 +159,9 @@ Inspect the two newly started containers using the commands above.
 Let's now do actual interaction with Docker container instances.
 Such as starting and stopping containers, copying files to / from containers, getting a shell inside containers etc.
 
-Follow the steps below:
+Follow the steps below.
 
-### Starting Instances
+### Start Instances
 
 Start the `ctf-piece_of_pie` instance:
 
@@ -190,7 +190,7 @@ Connect locally to test the service:
 nc localhost 31337
 ```
 
-### Stopping Instances
+### Stop Instances
 
 Stop the `cdl-nginx` instance:
 
@@ -206,7 +206,7 @@ Check to see the list of stopped containers:
 docker ps -a
 ```
 
-### Removing Containers
+### Remove Containers
 
 A stopped container can be removed.
 Once this is done, the container is gone forever.
@@ -227,7 +227,7 @@ docker inspect cdl-nginx
 docker stats cdl-nginx
 ```
 
-### Connecting to a Container
+### Connect to a Container
 
 You can connect to a container by using `docker exec`.
 Typically, you want to start a shell.
@@ -246,7 +246,7 @@ docker exec -it ctf-piece_of_pie cat /etc/shadow
 docker exec -it ctf-piece_of_pie id
 ```
 
-### Copying Files To / From a Container
+### Copy Files To / From a Container
 
 You can copy files or entire directories to or from a container.
 For example, to copy the `README.md` file to the `cdl-nginx` container in the `root` directory, use:
@@ -526,7 +526,7 @@ To provide an input to the containers and a permanent storage for them we use vo
 
 Volumes are used to save outputs of files permanently. Start a container based on the image you can build and call `infinite-wrier`in the background using the following command:
 
-```
+```console
 docker run -d --name perpetual-writer -v perpetual-storage:/var/perpetual-storage -t perpetual-writer
 ```
 
