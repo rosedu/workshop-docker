@@ -32,6 +32,7 @@ For that, follow the steps:
 1. You will use the `student` user.
    The `student` user is able to run Docker on the virtual machine.
    The user also has full access to the system via `sudo`.
+   The password for the `student` user is `student`.
 
 ## Inspect Docker Instances
 
@@ -51,11 +52,12 @@ Follow the steps below:
    docker version
    ```
 
-1. See information about the `docker` information:
+1. See information about the `docker` installation:
 
    ```console
    docker info
    ```
+
 1. Find out the currently running Docker containers:
 
    ```console
@@ -83,7 +85,7 @@ Follow the steps below:
    fbfe1d0b5870   nginx:latest       "/docker-entrypoint.…"   6 hours ago      Up 40 seconds                 0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   cdl-nginx
    ```
 
-1. Find out port-related information to the containers:
+1. Find out port-related information about the `cdl-nginx` container that is running:
 
    ```console
    docker port cdl-nginx
@@ -103,6 +105,12 @@ Follow the steps below:
    ```
 
    You will see the default HTML page of Nginx.
+
+   No information is shown for containers that are not running:
+
+   ```console
+   docker port ctf-piece_of_pie
+   ```
 
 1. Get detailed information about the Docker instances, either started or stopped:
 
@@ -126,7 +134,7 @@ Follow the steps below:
 
    Close the screen by running `Ctrl+c` three times.
 
-1. Find out the processes of the running Nginx container:
+1. Find out the internal processes of the running Nginx container:
 
    ```console
    docker top cdl-nginx
@@ -237,18 +245,37 @@ For example, to copy the `README.md` file to the `cdl-nginx` container in the `r
 docker cp README.md cdl-nginx:/root/
 ```
 
-Likwise, if we wnat to copy the `index.html` file we use;
+Likewise, if we want to copy the `index.html` file we use:
 
 ```console
 docker cp cdl-nginx:/usr/share/nginx/html/index.html .
 ```
 
+**Note**: There is a period (`.`) at the end of the command above.
+It is required, it points to the current directory.
+
 You can see that the container doesn't need to be running.
 
 ### Do It Yourself
 
-1. Copiază fișiere  în / din containere.
-1. Oprește toate containere current.
+Now copy files to from containers.
+
+1. Copy `README.md` and `install-docker.sh` files from the current directory in the `/usr/local/` directory in all containers available (via `docker ps -a`).
+
+1. Copy the `ctf/` local directory in the `/usr/local/` directory in all containers available (via `docker ps -a`).
+
+1. Create a directory for each available container:
+
+   ```console
+   mkdir container-cdl-nginx
+   mkdir container-ctf-piece_of_pie
+   ...
+   ```
+
+   Copy the `/bin/bash` binary from each available container to their respective directory.
+
+   Copy the `/etc/os-release` file from each available container to their respective directory.
+   Check the contents to see what Linux distro was used to construct the filesystem.
 
 ## Docker Images
 
@@ -283,7 +310,7 @@ docker image inspect debian:bookworm
 
 ## Images and Containers
 
-As stated above, container are created from images.
+As stated above, containers are created from images.
 Let's re-create the Nginx container, starting from the `nginx:latest` image:
 
 ```console
@@ -300,7 +327,7 @@ The container is currently stopped.
 In order to start the container, run:
 
 ```console
-docker strt cdl-nginx
+docker start cdl-nginx
 ```
 
 Check out it was started by running:
@@ -314,16 +341,50 @@ docker stats cdl-nginx
 
 The create and start command can be combined in a single command, `docker run`.
 
-Create two more Ngin containers by uring `docker fun`.
+Create two more Nginx containers by running `docker run`:
 
 ```console
 docker run --rm --name cdl2-nginx -p 8882:80 nginx:latest
 docker run --rm --name cdl3-nginx -p 8883:80 nginx:latest
 ```
 
+Check whether they are running:
+
+```console
+docker ps
+docker stats cdl2-nginx
+docker stats cdl3-nginx
+curl localhost:8882
+curl localhost:8883
+```
+
+The `--rm` option will remove an Nginx instance once it is stopped.
+
+Stop the instances:
+
+```console
+docker stop cdl2-nginx
+docker stop cdl3-nginx
+```
+
+Now the containers are gone forever (because of the `--rm` option):
+
+```console
+docker ps -a
+```
+
 ### Do It Yourself
 
-Create încă 5 containere din imaginile existente.
+Create more Nginx instances from available images:
+
+1. Use `docker run` to create 5 more Nginx images from the `nginx:latest` image.
+   Make sure you use different public ports.
+
+   Use the `--rm` option of `docker run`.
+
+1. Stop the containers you have just started.
+
+1. Check they are gone forever.
 
 ## Getting Images
 
@@ -335,19 +396,32 @@ To search for an image you like, use the commands below:
 docker search database
 ```
 
-To pulll images localy, use:
+To pull images locally, use:
 
 ```console
-docker pull <path the containers>
+docker pull <container-image-name-and-path-in-regitry>
+```
+
+such as:
+
+```console
+docker pull nginx:latest
+docker pull gcc:14.2
 ```
 
 ### Do It Yourself
 
-Download the following images:
+Download and instantiate other images.
 
-* Dohttps://hub.docker.com/_/mariadbwnload locally for the applications: [MongoDB](https://hub.docker.com/_/mongo), [MariaDB](https://hub.docker.com/_/mariadb).
-* Create 20-30 instances.
-* Aftr a while, try to stop the newly instances.
+1. Download images the applications: [MongoDB](https://hub.docker.com/_/mongo), [MariaDB](https://hub.docker.com/_/mariadb).
+   Use the names `mongodb:latest` and `mariadb:latest`.
+
+1. Create 5 container instances for `MongoDB` and 5 container instances for `MariaDB`.
+   Use the `--rm` option for `docker run`.
+
+1. Check to see the container instances are running.
+
+1. After a while, stop the newly instances.
 
 ## Installing Docker
 
@@ -358,7 +432,7 @@ Use either [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windo
 
 Make sure to add your user to the `docker` group so you can run the docker commands without `sudo`.
 
-As a summeryo install Docker, follow the instructions below, also listed in the `install-nginx.sh` script.
+As a quick way to install Docker for Debian-based systems, follow the instructions below, also listed in the `install-nginx.sh` script:
 
 ```console
 # Add Docker's official GPG key:
@@ -379,6 +453,7 @@ sudo apt-get -yqq install docker-ce docker-ce-cli containerd.io docker-buildx-pl
 sudo adduser $USER docker
 student@cdl-docker:~/work
 ```
+
 ## Dockerfile
 
 Dockerfiles provide recipes for creating a container by writing a script which sets up the container environment.
@@ -387,12 +462,12 @@ Dockerfiles provide recipes for creating a container by writing a script which s
 Read the file and follow the rules which are defined in it.
 We notice the following keywords:
 
-* FROM - the base container on top of which the setup will be done;
-* RUN - runs a setup command;
-* WORKDIR - sets the container work directory to the specific path;
-* USER - sets the running user to the specific username;
-* ARG - defines an argument at build time;
-* COPY - copies a file from the build directory to the container.
+* `FROM` - the base container on top of which the setup will be done;
+* `RUN` - runs a setup command;
+* `WORKDIR` - sets the container work directory to the specific path;
+* `USER` - sets the running user to the specific username;
+* `ARG` - defines an argument at build time;
+* `COPY` - copies a file from the build directory to the container.
 
 Inspect the following Dockerfiles and try to follow the commands being run and the keywords used:
 * [uso-labs](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/Dockerfile)
@@ -401,21 +476,27 @@ Inspect the following Dockerfiles and try to follow the commands being run and t
 ### Python Server
 
 Go to the `python-server` directory and build the container using the following command:
-```
+
+```console
 docker build -t python-server:1.0 .
 ```
 
 The command builds the container with the specification from the Dockerfile.
 Add another line which installs the curl package.
-Test the container functionality by connecting to it and running the `curl localhost:8080` command.
+Test the container functionality by connecting to it and running the command:
+
+```console
+curl localhost:8080
+```
 
 Change the base image to Debian and rebuild the container tagged with the `python-server-debian:1.0` tag.
 
 Create a Makefiles which has the following rules:
-* `build`: creates a new image using the Dockerfile;
-* `start`: starts a container based on the `python-server` image named `python-workspace` in the background;
-* `stop`: stops the `python-workspace` container;
-* `connect`: connects to the container in an interactive shell.
+
+- `build`: creates a new image using the `Dockerfile`;
+- `start`: starts a container based on the `python-server` image named `python-workspace` in the background;
+- `stop`: stops the `python-workspace` container;
+- `connect`: connects to the container in an interactive shell.
 
 ### Assignment Checker
 
@@ -430,6 +511,7 @@ While it makes sense to run Docker containers by themselves as services, all the
 To provide an input to the containers and a permanent storage for them we use volumes.
 
 Volumes are used to save outputs of files permanently. Start a container based on the image you can build and call `infinite-wrier`in the background using the following command:
+
 ```
 docker run -d --name perpetual-writer -v perpetual-storage:/var/perpetual-storage -t perpetual-writer
 ```
@@ -452,13 +534,14 @@ Bind volumes mount files or directories from the host to a path in the container
 
 We will be running the `nginx` container using content on our host system.
 The command to do this from the repository root is:
-```
+
+```console
 TODO
 ```
 
 The `TODO` directory is mounted to the `/var/www` directory. Change the above command to mount the `TODO` directory instead. See what has changed.
 
-Add an additional mount point to the above command to mount the `TODO` file as the nginx configuration file fount at `TODO`.
+Add an additional mount point to the above command to mount the `TODO` file as the Nginx configuration file fount at `TODO`.
 
 #### Build Program With GCC13
 
@@ -468,45 +551,29 @@ The container must be able to compile applications using GCC13.
 
 ## Container Registries
 
-
 Now that we have created a set of containers, we want to publish them so they are available to the world and to download on other systems.
 
 To push the `python-container` image that we have built earlier, we will need to tag it so that it has an associated namespace as such:
-```
+
+```console
 docker tag python-container:1.0 <dockerhub-username>/python-container:1.0
 ```
-Where `dockerhub-username` is your Dockerhub username.
+
+Where `dockerhub-username` is your DockerHub username.
 
 To push the container you will use the `docker push command`:
-```
+
+```container
 docker push <dockerhub-username>/python-container:1.0
 ```
 
-Tag the `assignment-checker` container and push it to Dockerhub.
+Tag the `assignment-checker` container and push it to DockerHub.
 
 ### Using GitHub Container Registry
 
-While using Dockerhub offers great visibility for projects and container images, it limits the number of pulls for images on a specific IP. To bypass this issue we will create a GitHub Container Registry (GHCR) account and login to it.
+While using DockerHub offers great visibility for projects and container images, it limits the number of pulls for images on a specific IP.
+To bypass this issue we will create a GitHub Container Registry (GHCR) account and login to it.
 
 Follow the [GHCR tutorial](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) to create a GHCR account.
 
-Login to the account the same as you did with the Dockerhub account and tag the `assignment-checker` image to be pushed to GHCR.
-
-## Advanced Applications
-
-### Dokerfile stages
-
-We have noticed that actions in Dockerfiles are split up into multiple RUN actions.
-Compare the two Dockerfile examples found in the `simple-docker` and `staged-docker` directories.
-
-Remove the install of `cowsay` from both of the Dockerfiles, rebuild the images, and notice which one is rebuilt the fastest.
-
-### Docker image save
-
-reference Compose;
-no time to work on it
-
-## GitHub Actions
-
-Sample GitHub project written in C
-Have action to build and test
+Login to the account the same as you did with the DockerHub account and tag the `assignment-checker` image to be pushed to GHCR.
