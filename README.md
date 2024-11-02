@@ -293,7 +293,7 @@ Copy files to and from containers.
 
 ## Docker Images
 
-Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile](#dockerfile)).
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile"](#dockerfile)).
 
 List the available Docker images by using:
 
@@ -479,9 +479,9 @@ Check the [`Dockerfile` used by the `ctf-piece-of-pie` container](ctf-piece_of_p
 
 Also check the following Dockerfiles:
 
-- [linux-kernel-labs](https://github.com/linux-kernel-labs/linux/blob/master/tools/labs/docker/kernel/Dockerfile) defines a Docker container.
-- [uso-labs](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/Dockerfile)
-- [docker-setup](https://github.com/Sergiu121/uso-lab/blob/master/labs/09-task-admin/lab-container/dropbox/Dockerfile)
+- [`linux-kernel-labs`](https://github.com/linux-kernel-labs/linux/blob/master/tools/labs/docker/kernel/Dockerfile) defines a Docker container.
+- [`uso-lab`](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/Dockerfile)
+- [`dropbox`](https://github.com/Sergiu121/uso-lab/blob/master/labs/09-task-admin/lab-container/dropbox/Dockerfile)
 
 This is a brief overview of the main keywords in a `Dockerfile`:
 
@@ -493,6 +493,123 @@ This is a brief overview of the main keywords in a `Dockerfile`:
 - `COPY` - copies a file from the build directory to the container.
 
 [The Dockerfile reference](https://docs.docker.com/reference/dockerfile/) presents an extensive presentation of keywords in a `Dockerfile`.
+
+### Build Images from Dockerfiles
+
+All four Dockerfiles presented above are part of the `dockerfile/` directory.
+Let's use them to create Docker images:
+
+1. Build the CTF Docker image:
+
+   ```console
+   docker build -f dockerfile/ctf.Dockerfile -t my-ctf ctf/
+   ```
+
+   The options in the above command are:
+
+   - `-f dockerfile/ctf.Dockerfile`: the path to the `Dockerfile` used to build the image
+   - `-t my-ctf`: the image name (also called a tag)
+   - `ctf/`: the directory that will be used as the base for `COPY` commands
+
+   Running the command above results in the creation of the `my-ctf` image.
+
+1. Build the `linux-kernel-labs` Docker image:
+
+   ```console
+   docker build -f dockerfile/linux-kernel-labs.Dockerfile -t linux-kernel-labs .
+   ```
+
+   Running the command above results in an error:
+
+   ```text
+   => ERROR [32/36] RUN groupadd -g $ARG_GID ubuntu
+   ------
+    > [32/36] RUN groupadd -g $ARG_GID ubuntu:
+   0.207 groupadd: invalid group ID 'ubuntu'
+   ------
+   linux-kernel-labs.Dockerfile:42
+   --------------------
+     40 |     ARG ARG_GID
+     41 |
+     42 | >>> RUN groupadd -g $ARG_GID ubuntu
+   ```
+
+   This is caused by missing build arguments `ARG_UID` and `ARG_GID`.
+   We provide these arguments via the `--build-arg` option:
+
+   ```console
+   docker build -f dockerfile/linux-kernel-labs.Dockerfile --build-arg ARG_GID=$(id -g) --build-arg ARG_UID=$(id -u) -t linux-kernel-labs .
+   ```
+
+   Running the command above results in the creation of the `linux-kernel-labs` image.
+
+1. Build the `uso-lab` Docker image:
+
+   ```console
+   docker build -f dockerfile/uso-lab.Dockerfile -t uso-lab .
+   ```
+
+   Running the command above results in an error:
+
+   ```text
+    => ERROR [15/16] COPY ./run.sh /usr/local/bin/run.sh
+   ------
+    > [15/16] COPY ./run.sh /usr/local/bin/run.sh:
+   ------
+   uso-lab.Dockerfile:20
+   --------------------
+     18 |     RUN rm -rf /var/lib/apt/lists/*
+     19 |
+     20 | >>> COPY ./run.sh /usr/local/bin/run.sh
+     21 |     CMD ["run.sh"]
+   ```
+
+   This is because the [`run.sh` script](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/run.sh) is not available in the local filesystem.
+   You will fix that as a task below.
+
+1. Build the `dropbox` Docker image:
+
+   ```console
+   docker build -f dockerfile/dropbox.Dockerfile -t dropbox .
+   ```
+
+   Running the command above results in a similar error as above:
+
+   ```text
+   => ERROR [9/9] COPY ./run.sh /usr/local/bin/run.sh
+   ------
+    > [9/9] COPY ./run.sh /usr/local/bin/run.sh:
+   ------
+   dropbox.Dockerfile:80
+   --------------------
+     78 |
+     79 |     # Install init script and dropbox command line wrapper
+     80 | >>> COPY ./run.sh /usr/local/bin/run.sh
+     81 |     CMD ["run.sh"]
+   ```
+
+   This is because the [`run.sh` script](https://github.com/Sergiu121/uso-lab/blob/master/labs/09-task-admin/lab-container/dropbox/run.sh) is not available in the local filesystem.
+   You will fix that as a task below.
+
+#### Do It Yourself
+
+##### Fix Build Issue
+
+First, fix the issue with the creation of the `uso-lab` image.
+That is:
+
+1. Copy the [`run.sh` script](https://github.com/systems-cs-pub-ro/uso-lab/blob/master/labs/03-user/lab-container/fizic/run.sh) locally.
+
+1. Run the `docker build` command again.
+   Be sure to pass the correct path as the final argument to the `docker build` command.
+   This is the path where the `run.sh` script is located locally.
+
+Follow similar steps to fix the issue with the creation of the `dropbox` image.
+
+##### Images from Other Dockerfiles
+
+Search the Internet (GitHub or otherwise) for two Dockerfiles.
+Build images from those two Dockerfiles.
 
 ### Python Server
 
@@ -564,7 +681,7 @@ The `nginx-website` directory is mounted to the `/usr/share/nginx/html` director
 Change the above command to mount the `better-website` directory instead.
 See what has changed.
 
-Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the nginx configuration file fount at `/etc/nginx/nginx.conf`.
+Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the Nginx configuration file fount at `/etc/nginx/nginx.conf`.
 
 #### Build Program With GCC13
 
