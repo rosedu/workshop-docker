@@ -428,7 +428,7 @@ docker pull gcc:14.2
 Download and instantiate other images.
 
 1. Download images the applications: [MongoDB](https://hub.docker.com/_/mongo), [MariaDB](https://hub.docker.com/_/mariadb).
-   Use the names `mongodb:latest` and `mariadb:latest`.
+   Use the names `mongodb/mongodb-community-server:latest` and `mariadb:latest`.
 
 1. Create 5 container instances for `MongoDB` and 5 container instances for `MariaDB`.
    Use the `--rm` option for `docker run`.
