@@ -650,44 +650,165 @@ Create a Docker image which is able to run this script, compile de application a
 
 While it makes sense to run Docker containers by themselves as services, all the data that they produce is ephemeral and will be deleted when the container is destroyed.
 
-To provide an input to the containers and a permanent storage for them we use volumes.
+To provide an input to the containers and a permanent storage for them we use [Docker volumes](https://docs.docker.com/engine/storage/volumes/).
 
-Volumes are used to save outputs of files permanently. Start a container based on the image you can build and call `infinite-writer`in the background using the following command:
+Volumes are used to save outputs of files permanently.
+
+### Set Up Test Container
+
+Enter the `perpetual-writer/` directory and build and run a container that periodically (once every 5 seconds) writes a message to a log file:
 
 ```console
-docker run -d --name perpetual-writer -v perpetual-storage:/var/perpetual-storage -t perpetual-writer
+cd perpetual-writer/
+make run
 ```
 
-Stop it and remove it.
-Start a new container based on the same image using the same command.
+The command above starts the `perpetual-writer` container:
+
+```console
+$ docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED             STATUS             PORTS                                     NAMES
+81353bb256cb   perpetual-writer   "bash /run.sh"           4 seconds ago       Up 2 seconds                                                 perpetual-writer
+```
+
+To check the generation of messages, enter the container:
+
+```console
+docker exec -it perpetual-writer /bin/bash
+```
+
+And now check the output of the log file in the `/perpetual-logs/logs` file:
+
+```console
+root@34c8d901cc21:/# cat /perpetual-storage/logs
+I have been running as of Sat Mar 29 08:00:16 UTC 2025
+I have been running as of Sat Mar 29 08:00:21 UTC 2025
+I have been running as of Sat Mar 29 08:00:26 UTC 2025
+[...]
+```
+
+Exit the container:
+
+```console
+root@34c8d901cc21:/# exit
+```
+
+And stop and remove the container:
+
+```console
+make clean
+```
+
+### Run the Container with Bind Mount
+
+In the example above, we were able to run the container and see the generated content while **inside** the container.
+But for a majority of use cases, we would want to be able to retrieve the output from (and feed the input to) the container.
+
+For this, we do a [bind mount](https://docs.docker.com/engine/storage/bind-mounts/) of a local directory to the container.
+This will mount the local directory in the container;
+any updates to the directory will be synced between the local setup and the container.
+
+To see the bind mount in action, first create the local directory `perpetual-storage/`:
+
+```console
+mkdir perpetual-storage
+```
+
+And then start a container using the `perpetual-writer` image and bind mount the local directory `perpetual-storage` to the container.
+The bind mount point in the container is `/perpetual-storage`:
+
+```console
+docker run -d --name perpetual-writer -v $(pwd)/perpetual-storage:/perpetual-storage -t perpetual-writer
+```
+
+The container is now running.
+It generates output in the `/perpetual-storage/logs` file inside the container.
+And, because of the bind mount, that file is available, and its contents are synced on the local `perpetual-storage/` directory:
+
+
+```console
+$ ls perpetual-storage/
+logs
+
+$ cat perpetual-storage/logs
+I have been running as of Sat Mar 29 09:20:51 UTC 2025
+I have been running as of Sat Mar 29 09:20:56 UTC 2025
+
+$ cat perpetual-storage/logs
+I have been running as of Sat Mar 29 09:20:51 UTC 2025
+I have been running as of Sat Mar 29 09:20:56 UTC 2025
+I have been running as of Sat Mar 29 09:21:01 UTC 2025
+```
+
+In the above commands, we can see the file `perpetual-storage/logs` being updated as the container runs.
+
+Stop it and remove the container:
+
+```console
+docker stop perpetual-writer
+docker rm perpetual-writer
+```
+
+The `perpetual-storage/logs` file is now no longer updated.
+
+Now, start a new container based on the same image using the same command.
 Enter the container and check the content of the `/perpetual-storage/logs` file.
+The file is now again updated.
+So we have a persistent storage that we can share to different container runs.
 
-The files are still stored on disk but in the `/var/lib/docker/` directory.
-To find local mount point of the volume run the `docker volume inspect` command.
-List the content of that directory.
+### More Bind Mounts
 
-Run the scripts in `TODO`.
-Identify for each container what volume it is using and what is the path to that volume on disk.
-There are three containers.
-
-### Bind Mounts
-
-Bind volumes mount files or directories from the host to a path in the container.
-
-We will be running the `nginx` container using content on our host system.
-The command to do this from the repository root is:
+Let's run the `nginx` container using content on our host system, from the `nginx-website/` directory.
 
 ```console
-docker run --name better-nginx -v $PWD/nginx-website:/usr/share/nginx/html:ro -d nginx
+docker run -d --name simple-nginx -v $(pwd)/nginx-website:/usr/share/nginx/html:ro -p 8085:80 nginx
 ```
 
-The `nginx-website/` directory is mounted to the `/usr/share/nginx/html/` directory.
-Change the above command to mount the `better-website` directory instead.
-See what has changed.
+Check the website with `curl`:
+
+```console
+$ curl localhost:8085
+Simple NGINX server
+```
+
+It works.
+We served local content (in the `nginx-website/` directory) by using a bind mount to `/usr/share/nginx/html/`, and serving the content with Nginx inside the container.
+The `nginx-website/` directory is mounted to the `/usr/share/nginx/html/` directory, the root directory of Nginx.
+
+Run another container to serve content from the `better-website/` local directory:
+
+```console
+docker run -d --name better-nginx -v $(pwd)/better-website:/usr/share/nginx/html:ro -p 8086:80 nginx
+```
+
+Check the website with `curl`:
+
+```console
+$ curl localhost:8086
+<!DOCTYPE html>
+<html>
+    <head>
+        Better website
+    </head>
+    <body>
+        <strong>I'm simply better</strong>
+    </body>
+</html>
+```
+
+It works.
+
+#### Additional Bind Mount
 
 Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the Nginx configuration file fount at `/etc/nginx/nginx.conf`.
+Use a new `-v ...` command option.
 
-#### Build Program With GCC13
+#### Do It Yourself
+
+Create a new directory `yet-another-website/` and start a container and bind the directory to the container to be served with Nginx.
+Verify with `curl`.
+
+### Build Program With GCC13
 
 An advantage of using containers is the fact that they offer a flexible environment for testing and building applications.
 Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based based on a `Makefile` located in the `/workdir` path.
@@ -707,7 +828,7 @@ To push the `python-container` image that we have built earlier, we will need to
 docker tag python-container:1.0 <dockerhub-username>/python-container:1.0
 ```
 
-Where `dockerhub-username` is your DockerHub username.
+Where `<dockerhub-username>` is your DockerHub username.
 
 To push the container you will use the `docker push command`:
 
