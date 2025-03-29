@@ -25,9 +25,12 @@ container_stop_and_remove "ctf-piece_of_pie"
 container_stop_and_remove "cdl-caddy"
 container_stop_and_remove "cdl-debian-bash"
 
-# Start Nginx container
+# Start Nginx container.
 ./vanilla-nginx/run-nginx-container.sh
 
-# Start CTF container
+# Start CTF container.
 cd ctf/deploy
 make run
+
+# Stop CTF container (for initial environment).
+docker stop ctf-piece_of_pie

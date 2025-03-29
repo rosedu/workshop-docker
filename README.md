@@ -11,28 +11,63 @@ cd workshop-docker/
 
 And let's get going! 🚀
 
-## Create a DockerHub Account
+> [!NOTE]
+> If, at any point in time, you miss a command, or something bad simply happened, reset the environment by running:
+>
+> ```console
+> ./reset-all.sh
+> ```
+
+> [!IMPORTANT]
+> We re recommend you write all commands below by hand, i.e. without using copy & paste.
+> This will get you better accustomed to the Docker ecosystem.
+
+## Initial Setup
+
+Follow the steps below for an initial setup of the environment.
+
+### Create a DockerHub Account
 
 Sign up for a [DockerHub](https://hub.docker.com/) account.
 We will use it for exercises below.
 
-## Remote VM Access
+### Install Docker
 
-We are using a remote virtual machine on the NCIT cluster.
-For that, follow the steps:
+> [!WARNING]
+> You will probably be unable to run Docker properly in macOS environment.
+> If you have a macOS environment, use a virtual machine, such as the Intro to Operating Systems [Virtual Machine](https://repository.grid.pub.ro/cs/uso/USO.ova).
 
-1. Connect to `fep.grid.pub.ro`:
+Install Docker on a Debian-based system (such as Ubuntu, including on [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install), by running the script:
 
-   ```console
-   ssh <your_upb_username>@fep.grid.pub.ro
-   ```
+```console
+./install-docker.sh
+```
 
-1. Use instructions from instructors to connect to your virtual machine.
+It will take a while to run.
 
-1. You will use the `student` user.
-   The `student` user is able to run Docker on the virtual machine.
-   The user also has full access to the system via `sudo`.
-   The password for the `student` user is `student`.
+If the script above fails for any reason, install Docker by following [these instructions](https://docs.docker.com/engine/install/).
+
+> [!IMPORTANT]
+> Make sure to add your user to the `docker` group so you can run the docker commands without `sudo`.
+> Follow the [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user) to have Docker running as non-root user.
+
+To validate your Docker installation, run the command:
+
+```console
+docker version
+```
+
+If the command above runs OK, Docker will run successfully.
+
+### Set Up Initial Environment
+
+Set up an initial Docker environment by running the script:
+
+```console
+./reset-all.sh
+```
+
+The script will (re)create two containers (`cdl-nginx` and `ctf-piece_of_pie`) that we will use in the exercises below.
 
 ## Inspect Docker Instances
 
@@ -249,7 +284,7 @@ docker exec -it ctf-piece_of_pie id
 ### Copy Files To / From a Container
 
 You can copy files or entire directories to or from a container.
-For example, to copy the `README.md` file to the `cdl-nginx` container in the `root` directory, use:
+For example, to copy the `README.md` file to the `cdl-nginx` container in the `root/` directory, use:
 
 ```console
 docker cp README.md cdl-nginx:/root/
@@ -402,7 +437,7 @@ Create more Nginx instances from available images:
 
 ## Getting Images
 
-Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com/_/httpd) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile](#dockerfile)).
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com/_/httpd) (see section ["Getting Images"](#getting-images)) or from a `Dockerfile` (see section ["Dockerfile](#dockerfile)).
 
 To search for an image you like, use the commands below:
 
@@ -436,37 +471,6 @@ Download and instantiate other images.
 1. Check to see the container instances are running.
 
 1. After a while, stop the newly instances.
-
-## Installing Docker
-
-Install Docker Engine following the [tutorial](https://docs.docker.com/engine/install/).
-We recommend that you install Docker inside of a Linux Virtual Machine if you're running on Windows so that you can take advantage of its CLI features.
-
-Use either [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) or the Intro to Operating Systems [Virtual Machine](https://repository.grid.pub.ro/cs/uso/USO.ova) if you you with to run in a Linux VM.
-
-Make sure to add your user to the `docker` group so you can run the docker commands without `sudo`.
-See the [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
-
-As a quick way to install Docker for Debian-based systems, follow the instructions below, also listed in the `install-nginx.sh` script:
-
-```console
-# Add Docker's official GPG key:
-sudo apt-get -yqq update
-sudo apt-get -yqq install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get -yqq update
-
-sudo apt-get -yqq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo adduser $USER docker
-```
 
 ## Dockerfile
 
@@ -613,7 +617,7 @@ Build images from those two Dockerfiles.
 
 ### Python Server
 
-Go to the `python-server` directory and build the container using the following command:
+Go to the `python-server/` directory and build the container using the following command:
 
 ```console
 docker build -t python-server:1.0 .
@@ -638,7 +642,7 @@ Create a `Makefile` with has the following rules:
 ### Assignment Checker
 
 A common use case for using containers is platform-agnostic testing.
-The `assignment-checker` directory contains a bash scripts which runs tests on an application by running it and comparing its output with a reference.
+The `assignment-checker/` directory contains a bash scripts which runs tests on an application by running it and comparing its output with a reference.
 
 Create a Docker image which is able to run this script, compile de application and run the tests.
 
@@ -648,7 +652,7 @@ While it makes sense to run Docker containers by themselves as services, all the
 
 To provide an input to the containers and a permanent storage for them we use volumes.
 
-Volumes are used to save outputs of files permanently. Start a container based on the image you can build and call `infinite-wrier`in the background using the following command:
+Volumes are used to save outputs of files permanently. Start a container based on the image you can build and call `infinite-writer`in the background using the following command:
 
 ```console
 docker run -d --name perpetual-writer -v perpetual-storage:/var/perpetual-storage -t perpetual-writer
@@ -658,7 +662,7 @@ Stop it and remove it.
 Start a new container based on the same image using the same command.
 Enter the container and check the content of the `/perpetual-storage/logs` file.
 
-The files are still stored on disk but in the `/var/lib/docker` directory.
+The files are still stored on disk but in the `/var/lib/docker/` directory.
 To find local mount point of the volume run the `docker volume inspect` command.
 List the content of that directory.
 
@@ -666,7 +670,7 @@ Run the scripts in `TODO`.
 Identify for each container what volume it is using and what is the path to that volume on disk.
 There are three containers.
 
-### Bind mounts
+### Bind Mounts
 
 Bind volumes mount files or directories from the host to a path in the container.
 
@@ -677,7 +681,7 @@ The command to do this from the repository root is:
 docker run --name better-nginx -v $PWD/nginx-website:/usr/share/nginx/html:ro -d nginx
 ```
 
-The `nginx-website` directory is mounted to the `/usr/share/nginx/html` directory.
+The `nginx-website/` directory is mounted to the `/usr/share/nginx/html/` directory.
 Change the above command to mount the `better-website` directory instead.
 See what has changed.
 
