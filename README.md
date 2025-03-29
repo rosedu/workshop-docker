@@ -624,10 +624,16 @@ docker build -t python-server:1.0 .
 ```
 
 The command builds the container with the specification from the `Dockerfile`.
+Run the container:
+
+```console
+docker run -p 8888:8888 --name python-server python-server:1.0
+```
+
 Test the container functionality by running:
 
 ```console
-curl localhost:8080
+curl localhost:8888
 ```
 
 Change the base image to Debian and rebuild the container tagged with the `python-server-debian:1.0` tag.
