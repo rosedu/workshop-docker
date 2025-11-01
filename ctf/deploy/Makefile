@@ -1,8 +1,8 @@
 OUTER_PORT ?= 31337
 INNER_PORT ?= 31337
-NAME ?= ctf-piece_of_pie
-IMAGE_NAME = $(NAME)
-CONTAINER_NAME = $(NAME)
+_NAME = ctf-piece_of_pie
+IMAGE_NAME = $(_NAME)
+CONTAINER_NAME = $(_NAME)
 
 build:
 	docker build -f Dockerfile -t $(IMAGE_NAME) ..
