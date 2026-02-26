@@ -1,6 +1,6 @@
 
-# Based on Debian
-FROM debian:buster
+# Based on Ubuntu
+FROM ubuntu:22.04
 
 # Maintainer
 LABEL maintainer "Alexander Graf <alex@otherguy.io>"
@@ -21,13 +21,15 @@ LABEL org.label-schema.vcs-ref        "${VCS_REF}"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NONINTERACTIVE_SEEN=true
 
-# Install prerequisites
-RUN apt-get update \
- && apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl gnupg2 \
-                                               software-properties-common gosu locales locales-all \
-                                               libc6 libglapi-mesa libxdamage1 libxfixes3 libxcb-glx0 \
-                                               libxcb-dri2-0 libxcb-dri3-0 libxcb-present0 libxcb-sync1 \
-                                               libxshmfence1 libxxf86vm1 tzdata
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget \
+    libc6 \
+    libstdc++6 \
+    gosu \
+    tzdata \
+    python3 \
+ && rm -rf /var/lib/apt/lists/*
 
 # Create user and group
 RUN mkdir -p /opt/dropbox /opt/dropbox/.dropbox /opt/dropbox/Dropbox \
@@ -49,29 +51,8 @@ WORKDIR /opt/dropbox/Dropbox
 # Not really required for --net=host
 EXPOSE 17500
 
-# https://help.dropbox.com/installs-integrations/desktop/linux-repository
-RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 1C61A2656FB57B7E4DE0F4C1FC918B335044912E \
- && add-apt-repository 'deb http://linux.dropbox.com/debian buster main' \
- && apt-get update \
- && apt-get -qqy install python3-gpg dropbox \
- && apt-get -qqy autoclean \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Dropbox insists on downloading its binaries itself via 'dropbox start -i'
-RUN echo "y" | gosu dropbox dropbox start -i
-
-# Dropbox has the nasty tendency to update itself without asking. In the processs it fills the
-# file system over time with rather large files written to /opt/dropbox/ and /tmp.
-#
-# https://bbs.archlinux.org/viewtopic.php?id=191001
-RUN mkdir -p /opt/dropbox/bin/ \
- && mv /opt/dropbox/.dropbox-dist/* /opt/dropbox/bin/ \
- && rm -rf /opt/dropbox/.dropbox-dist \
- && install -dm0 /opt/dropbox/.dropbox-dist \
- && chmod u-w /opt/dropbox/.dropbox-dist \
- && chown -R dropbox:dropbox /opt/dropbox \
- && chmod o-w /tmp \
- && chmod g-w /tmp
+# Download and extract Dropbox daemon
+RUN wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
 
 # Create volumes
 VOLUME ["/opt/dropbox/.dropbox", "/opt/dropbox/Dropbox"]
