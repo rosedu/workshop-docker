@@ -328,7 +328,7 @@ Copy files to and from containers.
 
 ## Docker Images
 
-Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com) (see section ["Getting Images"](#getting-images)) or from a `Dockefile` (see section ["Dockerfile"](#dockerfile)).
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com) (see section ["Getting Images"](#getting-images)) or from a `Dockerfile` (see section ["Dockerfile"](#dockerfile)).
 
 List the available Docker images by using:
 
@@ -479,7 +479,7 @@ The images can then be instantiated into containers.
 
 ### Check Dockerfiles
 
-Check the [`Dockerfile` used by the `ctf-piece-of-pie` container](ctf-piece_of_pie/deploy/Dockerfile).
+Check the [`Dockerfile` used by the `ctf-piece-of-pie` container](ctf/deploy/Dockerfile).
 
 Also check the following Dockerfiles:
 
