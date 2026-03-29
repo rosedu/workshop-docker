@@ -817,7 +817,7 @@ Verify with `curl`.
 ### Build Program With GCC13
 
 An advantage of using containers is the fact that they offer a flexible environment for testing and building applications.
-Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based based on a `Makefile` located in the `/workdir` path.
+Based on [this](https://gitlab.cs.pub.ro/operating-systems/assignments-docker-base/-/blob/main/Dockerfile?ref_type=heads) Dockerfile, create a Docker image which compiles an application based on a `Makefile` located in the `/workdir` path.
 
 The container must be able to compile applications using GCC13.
 
