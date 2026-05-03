@@ -1,6 +1,6 @@
-NAME ?= perpetual-writer
-IMAGE_NAME = $(NAME)
-CONTAINER_NAME = $(NAME)
+_NAME ?= perpetual-writer
+IMAGE_NAME = $(_NAME)
+CONTAINER_NAME = $(_NAME)
 
 build:
 	docker build -f Dockerfile -t $(IMAGE_NAME) .
