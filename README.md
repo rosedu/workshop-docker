@@ -2,7 +2,7 @@
 
 This is a practical workshop on using [Docker](https://www.docker.com/) for developing and deploying applications.
 
-First of all, fork [this repository](https://github.com/rosedu/workshop-docker):
+First of all, clone [this repository](https://github.com/rosedu/workshop-docker):
 
 ```console
 git clone https://github.com/rosedu/workshop-docker
@@ -19,7 +19,7 @@ And let's get going! 🚀
 > ```
 
 > [!IMPORTANT]
-> We re recommend you write all commands below by hand, i.e. without using copy & paste.
+> We recommend you write all commands below by hand, i.e. without using copy & paste.
 > This will get you better accustomed to the Docker ecosystem.
 
 ## Initial Setup
@@ -99,7 +99,7 @@ Follow the steps below:
    docker ps
    ```
 
-   You will the Docker containers that are currently running, namely an Nginx container:
+   You will see the Docker containers that are currently running, namely an Nginx container:
 
    ```text
    CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS          PORTS                                     NAMES
@@ -154,7 +154,7 @@ Follow the steps below:
    docker inspect ctf-piece_of_pie
    ```
 
-1. Find out of the runtime logging information of the container:
+1. Find out the runtime logging information of the container:
 
    ```console
    docker logs cdl-nginx
@@ -304,7 +304,7 @@ You can see that the container doesn't need to be running.
 ### Do It Yourself
 
 Make sure all four containers are started: `cdl-nginx`, `ctf-piece_of_pie`, `cdl-caddy`, `cdl-debian-bash`.
-Start them if they are not stared.
+Start them if they are not started.
 
 Copy files to and from containers.
 
@@ -366,7 +366,7 @@ Let's re-create the Nginx container, starting from the `nginx:latest` image:
 docker create --rm --name cdl-nginx nginx:latest
 ```
 
-Check out it was created by running:
+Check that it was created by running:
 
 ```console
 docker ps -a
@@ -379,7 +379,7 @@ In order to start the container, run:
 docker start cdl-nginx
 ```
 
-Check out it was started by running:
+Check that it was started by running:
 
 ```console
 docker ps
@@ -393,9 +393,12 @@ The create and start command can be combined in a single command, `docker run`.
 Create two more Nginx containers by running `docker run`:
 
 ```console
-docker run --rm --name cdl2-nginx -p 8882:80 nginx:latest
-docker run --rm --name cdl3-nginx -p 8883:80 nginx:latest
+docker run -d --rm --name cdl2-nginx -p 8882:80 nginx:latest
+docker run -d --rm --name cdl3-nginx -p 8883:80 nginx:latest
 ```
+
+The `-d` option runs the containers in the background.
+Without it, `docker run` stays attached to the container and your terminal is blocked.
 
 Check whether they are running:
 
@@ -437,7 +440,7 @@ Create more Nginx instances from available images:
 
 ## Getting Images
 
-Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com/_/httpd) (see section ["Getting Images"](#getting-images)) or from a `Dockerfile` (see section ["Dockerfile](#dockerfile)).
+Images are stored locally either by being pulled from a container registry such as [DockerHub](https://hub.docker.com/_/httpd) (see section ["Getting Images"](#getting-images)) or from a `Dockerfile` (see section ["Dockerfile"](#dockerfile)).
 
 To search for an image you like, use the commands below:
 
@@ -448,7 +451,7 @@ docker search database
 To pull images locally, use:
 
 ```console
-docker pull <container-image-name-and-path-in-regitry>
+docker pull <container-image-name-and-path-in-registry>
 ```
 
 such as:
@@ -470,7 +473,7 @@ Download and instantiate other images.
 
 1. Check to see the container instances are running.
 
-1. After a while, stop the newly instances.
+1. After a while, stop the newly created instances.
 
 ## Dockerfile
 
@@ -617,17 +620,17 @@ Build images from those two Dockerfiles.
 
 ### Python Server
 
-Go to the `python-server/` directory and build the container using the following command:
+Go to the `python-container/` directory and build the container using the following command:
 
 ```console
-docker build -t python-server:1.0 .
+docker build -t python-container:1.0 .
 ```
 
 The command builds the container with the specification from the `Dockerfile`.
-Run the container:
+Run the container in the background (`-d`), so that your terminal stays usable:
 
 ```console
-docker run -p 8888:8888 --name python-server python-server:1.0
+docker run -d -p 8888:8888 --name python-container python-container:1.0
 ```
 
 Test the container functionality by running:
@@ -636,21 +639,21 @@ Test the container functionality by running:
 curl localhost:8888
 ```
 
-Change the base image to Debian and rebuild the container tagged with the `python-server-debian:1.0` tag.
+Change the base image to Debian and rebuild the container tagged with the `python-container-debian:1.0` tag.
 
 Create a `Makefile` with has the following rules:
 
 - `build`: creates a new image using the `Dockerfile`;
-- `start`: starts a container based on the `python-server` image named `python-workspace` in the background;
+- `start`: starts a container based on the `python-container` image named `python-workspace` in the background;
 - `stop`: stops the `python-workspace` container;
 - `connect`: connects to the container in an interactive shell.
 
 ### Assignment Checker
 
 A common use case for using containers is platform-agnostic testing.
-The `assignment-checker/` directory contains a bash scripts which runs tests on an application by running it and comparing its output with a reference.
+The `assignment-checker/` directory contains a bash script which runs tests on an application by running it and comparing its output with a reference.
 
-Create a Docker image which is able to run this script, compile de application and run the tests.
+Create a Docker image which is able to run this script, compile the application and run the tests.
 
 ## Volumes
 
@@ -683,7 +686,7 @@ To check the generation of messages, enter the container:
 docker exec -it perpetual-writer /bin/bash
 ```
 
-And now check the output of the log file in the `/perpetual-logs/logs` file:
+And now check the output of the log file in the `/perpetual-storage/logs` file:
 
 ```console
 root@34c8d901cc21:/# cat /perpetual-storage/logs
@@ -806,7 +809,7 @@ It works.
 
 #### Additional Bind Mount
 
-Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the Nginx configuration file fount at `/etc/nginx/nginx.conf`.
+Add an additional mount point to the above command to mount the `nginx-confs/nginx.conf` file as the Nginx configuration file found at `/etc/nginx/nginx.conf`.
 Use a new `-v ...` command option.
 
 #### Do It Yourself
@@ -836,9 +839,9 @@ docker tag python-container:1.0 <dockerhub-username>/python-container:1.0
 
 Where `<dockerhub-username>` is your DockerHub username.
 
-To push the container you will use the `docker push command`:
+To push the container you will use the `docker push` command:
 
-```container
+```console
 docker push <dockerhub-username>/python-container:1.0
 ```
 
