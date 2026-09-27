@@ -25,12 +25,24 @@ container_stop_and_remove "ctf-piece_of_pie"
 container_stop_and_remove "cdl-caddy"
 container_stop_and_remove "cdl-debian-bash"
 
+# Run from the directory this script lives in, so the relative paths below
+# work no matter where it is invoked from.
+cd "$(dirname "$0")" || exit 1
+
 # Start Nginx container.
-./vanilla-nginx/run-nginx-container.sh
+if ! ./vanilla-nginx/run-nginx-container.sh; then
+    echo "reset-all.sh: failed to set up the Nginx container; stopping here." 1>&2
+    exit 1
+fi
 
 # Start CTF container.
-cd ctf/deploy
-make run
+if ! (cd ctf/deploy && make run); then
+    echo "reset-all.sh: failed to set up the CTF container; stopping here." 1>&2
+    exit 1
+fi
 
 # Stop CTF container (for initial environment).
 docker stop ctf-piece_of_pie
+
+echo ""
+echo "Environment ready: cdl-nginx is running, ctf-piece_of_pie is stopped."

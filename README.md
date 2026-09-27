@@ -69,6 +69,15 @@ Set up an initial Docker environment by running the script:
 
 The script will (re)create two containers (`cdl-nginx` and `ctf-piece_of_pie`) that we will use in the exercises below.
 
+> [!NOTE]
+> `cdl-nginx` publishes port `8080` on your machine.
+> If something else is already using that port, the script stops and tells you so.
+> Pick another port and use it instead of `8080` for the rest of the workshop:
+>
+> ```console
+> CDL_NGINX_PORT=8090 ./reset-all.sh
+> ```
+
 ## Inspect Docker Instances
 
 Let's start with inspecting the Docker installation and instances on the virtual machine.
