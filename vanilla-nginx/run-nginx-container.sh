@@ -7,10 +7,13 @@ PORT="${CDL_NGINX_PORT:-8080}"
 
 docker pull nginx:latest
 
+had_container=false
+docker container inspect cdl-nginx >/dev/null 2>&1 && had_container=true
 if ! docker run -d --restart always --name cdl-nginx -p "$PORT":80 nginx:latest; then
-    # Docker leaves the container behind in the "Created" state when the
-    # port bind fails; remove it so a retry is not blocked by the name.
-    docker rm -f cdl-nginx > /dev/null 2>&1
+    # Remove only a container created by this invocation.
+    if test "$had_container" = false; then
+        docker rm -f cdl-nginx > /dev/null 2>&1
+    fi
 
     echo "" 1>&2
     echo "Could not start the cdl-nginx container." 1>&2
