@@ -1,6 +1,6 @@
 
 # Based on Debian
-FROM debian:buster
+FROM debian:bookworm
 
 # Maintainer
 LABEL maintainer "Alexander Graf <alex@otherguy.io>"
